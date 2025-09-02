@@ -13,9 +13,9 @@ struct CardView: View {
     @State private var currentImageIndex = 1
     @State private var mockImages = [
         "ahmed",
-        "ahmed-1"
+        "ahmed-1",
     ]
-    
+
     var body: some View {
         ZStack(alignment: .bottom) {
             ZStack(alignment: .top) {
@@ -28,10 +28,15 @@ struct CardView: View {
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .overlay {
-                        ImageScrollingOverlay(currentImageIndex: $currentImageIndex, imageCount: mockImages.count)
+                        ImageScrollingOverlay(
+                            currentImageIndex: $currentImageIndex,
+                            imageCount: mockImages.count
+                        )
                     }
-
-                SwipeActionIndicatorView(xOffset: $xOffset)
+                CardImageIndicatorView(
+                    currentImageIndex: currentImageIndex,
+                    imageCount: mockImages.count
+                )
                 SwipeActionIndicatorView(xOffset: $xOffset)
             }
 
