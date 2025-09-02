@@ -10,17 +10,29 @@ import SwiftUI
 struct CardView: View {
     @State private var xOffset: CGFloat = 0
     @State private var degress: Double = 0
-
+    @State private var currentImageIndex = 1
+    @State private var mockImages = [
+        "ahmed",
+        "ahmed-1"
+    ]
+    
     var body: some View {
         ZStack(alignment: .bottom) {
-            ZStack(alignment: .top){
-                Image(.ahmed)
+            ZStack(alignment: .top) {
+                Image(mockImages[currentImageIndex])
                     .resizable()
                     .scaledToFill()
-                    .frame(width: cardWidth, height: cardHeight)
+                    .frame(
+                        width: SizeConstants.cardWidth,
+                        height: SizeConstants.cardHeight
+                    )
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                
-                SwipeActionIndicatorView(xOffset: $xOffset, screenCutoff: screenCutOff)
+                    .overlay {
+                        ImageScrollingOverlay(currentImageIndex: $currentImageIndex, imageCount: mockImages.count)
+                    }
+
+                SwipeActionIndicatorView(xOffset: $xOffset)
+                SwipeActionIndicatorView(xOffset: $xOffset)
             }
 
             UserInfoView()
@@ -37,32 +49,20 @@ struct CardView: View {
 }
 
 extension CardView {
-    func onDragChanged(_ value: _ChangedGesture<DragGesture>.Value){
+    func onDragChanged(_ value: _ChangedGesture<DragGesture>.Value) {
         xOffset = value.translation.width
         degress = Double(value.translation.width) / 25
     }
     func onDragEnded(_ value: _ChangedGesture<DragGesture>.Value) {
         let width = value.translation.width
 
-        if abs(width) <= abs(screenCutOff) {
+        if abs(width) <= abs(SizeConstants.screenCutoff) {
             xOffset = 0
             degress = 0
         }
     }
 }
 
-extension CardView {
-    fileprivate var screenCutOff: CGFloat {
-        (UIScreen.main.bounds.width / 2) * 0.8
-    }
-    fileprivate var cardWidth: CGFloat {
-        UIScreen.main.bounds.width - 20
-    }
-
-    fileprivate var cardHeight: CGFloat {
-        UIScreen.main.bounds.height / 1.45
-    }
-}
 #Preview {
     CardView()
 }
