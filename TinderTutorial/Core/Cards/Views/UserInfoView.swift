@@ -9,6 +9,7 @@ import SwiftUI
 
 struct UserInfoView: View {
     let user: User
+    @Binding var showUserProfile: Bool
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -24,7 +25,7 @@ struct UserInfoView: View {
                 Spacer()
 
                 Button {
-                    print("Debug: Show profile here...")
+                    showUserProfile.toggle()
                 } label: {
                     Image(systemName: "arrow.up.circle")
                         .fontWeight(.bold)
@@ -32,7 +33,7 @@ struct UserInfoView: View {
 
                 }
             }
-            
+
             Text("Software Engineer")
                 .font(.subheadline)
                 .lineLimit(2)
@@ -40,11 +41,15 @@ struct UserInfoView: View {
         .padding()
         .foregroundStyle(.white)
         .background(
-            LinearGradient(colors: [.clear, .black], startPoint: .top, endPoint: .bottom)
+            LinearGradient(
+                colors: [.clear, .black],
+                startPoint: .top,
+                endPoint: .bottom
+            )
         )
     }
 }
 
 #Preview {
-    UserInfoView(user: MockData.users[0])
+    UserInfoView(user: MockData.users[0], showUserProfile: .constant(false))
 }

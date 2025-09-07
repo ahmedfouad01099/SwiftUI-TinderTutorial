@@ -16,8 +16,10 @@ struct CardView: View {
         "ahmed",
         "ahmed-1",
     ]
+    @State private var showProfileView: Bool = false
+
     let model: CardModel
-    
+
     var body: some View {
         ZStack(alignment: .bottom) {
             ZStack(alignment: .top) {
@@ -42,11 +44,22 @@ struct CardView: View {
                 SwipeActionIndicatorView(xOffset: $xOffset)
             }
 
-            UserInfoView(user: user)
+            UserInfoView(user: user, showUserProfile: $showProfileView)
+        }
+        .fullScreenCover(
+            isPresented: $showProfileView
+        ) {
+            UserProfileView(user: user)
         }
         .onAppear {
             print("CardView model: \(model)")
         }
+        .onReceive(
+            viewModel.$buttonSwipeAction,
+            perform: { action in
+                onReceiveSwipeAction(action)
+            }
+        )
         .offset(x: xOffset)
         .rotationEffect(.degrees(degress))
         .animation(.snappy, value: xOffset)
@@ -58,34 +71,56 @@ struct CardView: View {
     }
 }
 
-private extension CardView {
-    var user: User {
+extension CardView {
+    fileprivate var user: User {
         return model.user
     }
-    
-    var imageCount: Int {
+
+    fileprivate var imageCount: Int {
         return user.profileImageURLs.count
     }
 }
 
-private extension CardView {
+extension CardView {
     func returnToCenter() {
         xOffset = 0
         degress = 0
     }
-    
+
     func swipeRight() {
-        xOffset = 500
-        degress = 12
-        
-        viewModel.removeCard(model)
+        withAnimation {
+            xOffset = 500
+            degress = 12
+
+        } completion: {
+            viewModel.removeCard(model)
+        }
+
     }
-    
+
     func swipteLeft() {
-        xOffset = -500
-        degress = -12
-        
-        viewModel.removeCard(model)
+        withAnimation {
+            xOffset = -500
+            degress = -12
+        } completion: {
+            viewModel.removeCard(model)
+        }
+    }
+
+    func onReceiveSwipeAction(_ action: SwipeAction?) {
+        guard let action else { return }
+
+        let topCard = viewModel.cardModels.last
+
+        if topCard == model {
+            switch action {
+            case .reject:
+                swipteLeft()
+            case .like:
+                swipeRight()
+            }
+        }
+
     }
 }
 extension CardView {
@@ -100,7 +135,7 @@ extension CardView {
             returnToCenter()
             return
         }
-        
+
         if width >= SizeConstants.screenCutoff {
             swipeRight()
         } else {
