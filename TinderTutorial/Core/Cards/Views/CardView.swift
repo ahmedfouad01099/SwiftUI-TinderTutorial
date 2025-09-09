@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct CardView: View {
+    @EnvironmentObject var matchManager: MatchManager
     @ObservedObject var viewModel: CardViewModel
+    
     @State private var xOffset: CGFloat = 0
     @State private var degress: Double = 0
     @State private var currentImageIndex = 0
@@ -94,6 +96,7 @@ extension CardView {
 
         } completion: {
             viewModel.removeCard(model)
+            matchManager.checkForMatch(withUser: user)
         }
 
     }
@@ -153,4 +156,5 @@ extension CardView {
             user: MockData.users[0]
         )
     )
+    .environmentObject(MatchManager())
 }

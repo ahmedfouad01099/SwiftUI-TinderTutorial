@@ -8,18 +8,32 @@
 import SwiftUI
 
 struct CardStackView: View {
+    @EnvironmentObject var matchManager: MatchManager
+    @State private var showMatchView = true
     @StateObject var viewModel = CardViewModel(service: CardService())
+    
     var body: some View {
         NavigationStack {
-            VStack(spacing: 16) {
-                ZStack {
-                    ForEach(viewModel.cardModels) { card in
-                        CardView(viewModel: viewModel, model: card)
+            ZStack {
+                VStack(spacing: 16) {
+                    ZStack {
+                        ForEach(viewModel.cardModels) { card in
+                            CardView(viewModel: viewModel, model: card)
+                        }
+                    }
+                    if !viewModel.cardModels.isEmpty {
+                        SwipeActionButtonView(viewModel: viewModel)
                     }
                 }
-                if !viewModel.cardModels.isEmpty {
-                    SwipeActionButtonView(viewModel: viewModel)
+                .blur(radius: showMatchView ? 20 : 0)
+ 
+                if showMatchView {
+                    UserMatchView(show: $showMatchView)
                 }
+            }
+            .animation(.easeInOut, value: showMatchView)
+            .onReceive(matchManager.$matchedUser) { user in
+                showMatchView = user != nil
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -28,7 +42,7 @@ struct CardStackView: View {
                         .scaledToFit()
                         .frame(width: 120, height: 60)
                 }
-
+                
             }
         }
     }
@@ -36,4 +50,5 @@ struct CardStackView: View {
 
 #Preview {
     CardStackView()
+        .environmentObject(MatchManager())
 }
